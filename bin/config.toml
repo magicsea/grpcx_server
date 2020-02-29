@@ -13,14 +13,14 @@ listenServer = "0.0.0.0:3002"
 [[backends]]
 backend = ["127.0.0.1:9001"]
 ##前缀
-filter = "/proto.GameService"
+filter = "/pb.GameService"
 ##模块
 module = ["default"]
 
 
 [[backends]]
 backend = ["127.0.0.1:9001","127.0.0.1:9002"]
-filter = "/proto.SearchService/Hello"
+filter = "/pb.SearchService/Hello"
 module = ["default"]
 
 [[servers]]
