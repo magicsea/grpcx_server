@@ -1,0 +1,58 @@
+syntax = "proto3";
+//import "github.com/golang/protobuf/ptypes/any/any.proto";
+package pb;
+
+//==============client2gate==============
+service LoginService {
+    rpc Login(LoginRequest) returns (stream PushMsg) {};
+    rpc HeartBeat(HeartBeatMsg) returns (HeartBeatMsg) {};
+}
+
+message LoginRequest {
+    string token = 1;
+    int64 uid = 2;
+}
+message LoginRsp {
+    int64 uid = 1;
+    string name = 2;
+    int32 result = 3;
+}
+
+message RawMsg {
+    string msgId = 1;
+    bytes msgData = 2;
+}
+
+
+message PushMsg {
+    RawMsg msg = 1;
+}
+
+message HeartBeatMsg {
+    int64 ticker = 1;
+}
+
+
+//==============backend2gate==============
+service GateService {
+    rpc KickAgent(KickAgentReq) returns (Rsp) {};
+    rpc PushClient(PushClientReq) returns (Rsp) {};
+    rpc BroadcastClient(BroadcastClientReq) returns (Rsp) {};
+}
+
+message KickAgentReq {
+    int64 uid = 1;
+}
+
+message PushClientReq {
+    int64 uid = 1;
+    RawMsg data = 2;
+}
+
+message BroadcastClientReq {
+    RawMsg data = 1;
+}
+
+message Rsp {
+    int32 result = 1;
+}
