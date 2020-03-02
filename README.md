@@ -4,7 +4,7 @@
 - 统一c2s,s2s的协议，都通过proto定义，减少沟通成本，不易犯错
 - 使用grpc解决了跨语言，跨平台问题
 - 立足游戏领域的解决方案（无状态，有状态服务）
-grpc framework for game 
+
 
 # TODO
 - [ ] gate支持bidirection
