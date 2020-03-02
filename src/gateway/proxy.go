@@ -1,7 +1,6 @@
 package main
 
 import (
-
 	"io"
 
 	"golang.org/x/net/context"
@@ -16,6 +15,7 @@ var (
 	}
 )
 
+//StreamDirector
 type StreamDirector func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error)
 
 // RegisterService sets up a proxy handler for a particular gRPC service and method.
@@ -40,6 +40,7 @@ func RegisterService(server *grpc.Server, director StreamDirector, serviceName s
 	server.RegisterService(fakeDesc, streamer)
 }
 
+//TransparentHandler
 func TransparentHandler(director StreamDirector) grpc.StreamHandler {
 	streamer := &handler{director}
 	return streamer.handler

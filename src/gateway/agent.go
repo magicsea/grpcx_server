@@ -9,6 +9,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"share"
+
 	"github.com/gogo/protobuf/proto"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/peer"
@@ -68,7 +70,8 @@ loop:
 
 func (agent *Agent) onTick() {
 	hb := atomic.LoadInt64(&agent.hbTicker)
-	if time.Now().Unix()-hb > GetConfig().Project.HeartbeatTime {
+	t := share.GetServerConf("HeartbeatTime")
+	if time.Now().Unix()-hb > t.(int64) {
 		agent.Close("heartbeat too long")
 		return
 	}

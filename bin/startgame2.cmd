@@ -1,0 +1,1 @@
+game.exe --appname="game2"

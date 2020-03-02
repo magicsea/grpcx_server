@@ -2,18 +2,21 @@ package main
 
 import (
 	_ "context"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
+
+	mid "github.com/grpc-ecosystem/go-grpc-middleware"
 
 	"log"
 	"net"
 	_ "runtime/debug"
 
+	"pb"
+	"share"
+
 	"google.golang.org/grpc"
 	_ "google.golang.org/grpc/status"
-
-	"pb"
 )
 
+//LoggingInterceptorfunc
 func LoggingInterceptorfunc(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 
 	log.Printf("gRPC stream method: %s, %v", info.FullMethod, stream)
@@ -23,9 +26,10 @@ func LoggingInterceptorfunc(srv interface{}, stream grpc.ServerStream, info *grp
 }
 
 func main() {
+	share.Init("gate1")
 
-	conf := GetConfig()
-	log.Printf("gateway start:%+v  server:%+v", conf.Project, conf.Server)
+	conf := share.GetServerConf("name")
+	log.Printf("gateway start:%+v", conf)
 
 	go listenServer()
 
@@ -58,13 +62,15 @@ func listenClient() {
 	clientService := grpc.NewServer(
 		grpc.CustomCodec(RawCodec()),
 		grpc.UnknownServiceHandler(TransparentHandler(RoundRobinConfigRouter)),
-		grpc_middleware.WithStreamServerChain(
+		mid.WithStreamServerChain(
 			LoggingInterceptorfunc,
 		))
 
 	pb.RegisterLoginServiceServer(clientService, &Loginservice{})
 
-	lis, err := net.Listen("tcp", GetConfig().Server.ListenClient)
+	addr := share.GetServerConf("listenClient").(string)
+	println("client addr:", addr)
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("net.Listen client err: %v", err)
 	}
@@ -78,7 +84,9 @@ func listenServer() {
 	server := grpc.NewServer()
 	pb.RegisterGateServiceServer(server, &GateService{})
 	//listen server
-	lis, err := net.Listen("tcp", GetConfig().Server.ListenServer)
+	addr := share.GetServerConf("listenAddr").(string)
+	println("server addr:", addr)
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("net.Listen server err: %v", err)
 	}

@@ -1,0 +1,24 @@
+[gate1]
+name = "gate1"
+type = "GateWay"
+listenAddr = "0.0.0.0:3001"
+outAddr = "0.0.0.0:3001"
+#client 监听地址
+listenClient = "0.0.0.0:3002"
+#client 对外地址
+outClient = "0.0.0.0:3002"
+#客户端心跳时间，单位秒
+HeartbeatTime = 10000
+
+[game1]
+name = "game1"
+type = "Game"
+listenAddr = "0.0.0.0:9001"
+outAddr = "0.0.0.0:9001"
+
+
+[game2]
+name = "game2"
+type = "Game"
+listenAddr = "0.0.0.0:9002"
+outAddr = "0.0.0.0:9002"

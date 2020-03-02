@@ -32,6 +32,7 @@ type frame struct {
 	payload []byte
 }
 
+//Marshal
 func (c *rawCodec) Marshal(v interface{}) ([]byte, error) {
 	out, ok := v.(*frame)
 	if !ok {
@@ -41,6 +42,7 @@ func (c *rawCodec) Marshal(v interface{}) ([]byte, error) {
 
 }
 
+//Unmarshal
 func (c *rawCodec) Unmarshal(data []byte, v interface{}) error {
 	dst, ok := v.(*frame)
 	if !ok {
@@ -57,10 +59,12 @@ func (c *rawCodec) String() string {
 // protoCodec is a Codec implementation with protobuf. It is the default rawCodec for gRPC.
 type protoCodec struct{}
 
+//Marshal
 func (protoCodec) Marshal(v interface{}) ([]byte, error) {
 	return proto.Marshal(v.(proto.Message))
 }
 
+//Unmarshal
 func (protoCodec) Unmarshal(data []byte, v interface{}) error {
 	return proto.Unmarshal(data, v.(proto.Message))
 }

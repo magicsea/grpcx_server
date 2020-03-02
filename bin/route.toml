@@ -1,0 +1,30 @@
+[project]
+version = "1.0.0"
+
+
+#各种服务器对外地址
+[[servers]]
+name = "gate1"
+type = "Gate"
+outAddr = "0.0.0.0:3001"
+
+
+[[servers]]
+name = "game1"
+type = "Game"
+outAddr = "0.0.0.0:9001"
+
+[[servers]]
+name = "game2"
+type = "Game"
+outAddr = "0.0.0.0:9002"
+
+
+##路由规则
+[[rules]]
+type = "Game"
+protos = ["/pb.GameService"]
+
+[[rules]]
+type = "Gate"
+protos = ["/pb.GateService"]

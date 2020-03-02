@@ -1,4 +1,5 @@
 package main
+
 import (
 	"context"
 	"share"
@@ -10,19 +11,19 @@ import (
 	"google.golang.org/grpc/status"
 
 	. "pb"
-
 )
 
+//GameService
 type GameService struct{}
 
 //返回
-func (s *GameService) Hello(ctx context.Context, req *HelloRequest) (*HelloResponse, error){
+func (s *GameService) Hello(ctx context.Context, req *HelloRequest) (*HelloResponse, error) {
 	if ctx.Err() == context.Canceled {
 		return nil, status.Errorf(codes.Canceled, "GameService.Hello canceled")
 	}
-	oc,_:= metadata.FromIncomingContext(ctx)
-	uid,err := share.GetUIDFromContext(ctx)
-	println("Hello.....",req.Request,uid,err,oc)
+	oc, _ := metadata.FromIncomingContext(ctx)
+	uid, err := share.GetUIDFromContext(ctx)
+	println("Hello.....", req.Request, uid, err, oc)
 
 	return &HelloResponse{Response: req.GetRequest() + " Server"}, err
 }
@@ -32,10 +33,10 @@ func (s *GameService) HelloWorld(ctx context.Context, req *HelloRequest) (*Hello
 	if ctx.Err() == context.Canceled {
 		return nil, status.Errorf(codes.Canceled, "GameService.Hello canceled")
 	}
-	oc,_:= metadata.FromIncomingContext(ctx)
-	uid,err := share.GetUIDFromContext(ctx)
-	println("HelloWorld.....",req.Request,uid,err,oc)
- 	broadcastClients(ctx,"helloworld",req)
+	oc, _ := metadata.FromIncomingContext(ctx)
+	uid, err := share.GetUIDFromContext(ctx)
+	println("HelloWorld.....", req.Request, uid, err, oc)
+	broadcastClients(ctx, "helloworld", req)
 	time.Sleep(time.Second)
 	return &HelloResponse{Response: req.GetRequest() + " Server"}, err
 }
@@ -45,13 +46,12 @@ func (s *GameService) TellYou(ctx context.Context, req *TellRequest) (*TellRsp, 
 	if ctx.Err() == context.Canceled {
 		return nil, status.Errorf(codes.Canceled, "GameService.Hello canceled")
 	}
-	oc,_:= metadata.FromIncomingContext(ctx)
-	uid,err := share.GetUIDFromContext(ctx)
+	oc, _ := metadata.FromIncomingContext(ctx)
+	uid, err := share.GetUIDFromContext(ctx)
 
-	println("TellYou.....",req.Request,req.TargetId,uid,err,oc)
+	println("TellYou.....", req.Request, req.TargetId, uid, err, oc)
 
-
-	sendClient(ctx,req.TargetId,"tellyou",req)
+	sendClient(ctx, req.TargetId, "tellyou", req)
 	time.Sleep(time.Second)
-	return &TellRsp{Request:req.Request,TargetId:req.TargetId}, err
+	return &TellRsp{Request: req.Request, TargetId: req.TargetId}, err
 }
