@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	"sync/atomic"
 	"time"
 
 	"share"
+
+	"sd"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -78,15 +79,18 @@ var rrCounter uint64
 //均衡负载
 func getBackendByRR(ctx context.Context, serverType string) (*grpc.ClientConn, error) {
 	//pick
-	endpoints := share.GetServersByType(serverType)
-	r := atomic.AddUint64(&rrCounter, 1)
-	l := uint64(len(endpoints))
-	endpoint := endpoints[r%l]
-	fmt.Printf("balanced, redirecting to [%+v]\n", endpoint)
+	node, err := sd.SelectService(serverType)
+	if err != nil {
+		return nil, err
+	}
+	//r := atomic.AddUint64(&rrCounter, 1)
+	//l := uint64(len(endpoints))
+	//endpoint := endpoints[r%l]
+	fmt.Printf("balanced, redirecting to [%+v]\n", node)
 	//connect
 	// 根据获取到的 endpoint, 建立到目的方的 connection
 	// 同时, 需要配置客户端 codec 为我们自定义的 codec
-	conn, err := grpc.DialContext(ctx, endpoint.OutAddr, grpc.WithTimeout(time.Second*2), grpc.WithBlock(), grpc.WithCodec(RawCodec()), grpc.WithInsecure())
+	conn, err := grpc.DialContext(ctx, node.Address, grpc.WithTimeout(time.Second*2), grpc.WithBlock(), grpc.WithCodec(RawCodec()), grpc.WithInsecure())
 	if err != nil {
 		fmt.Printf("grpc.DialContext failed:%v\n", err.Error())
 		return nil, err

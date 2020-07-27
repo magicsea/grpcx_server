@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sync/atomic"
 
+	"sd"
+
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 
@@ -17,8 +19,13 @@ var cfgFile = flag.String("conf", "./server.toml", "config file")
 var appnameCfg = flag.String("appname", "", "app name")
 var appName = ""
 
+// Init
 func Init(defaultAppName string) error {
 	flag.Parse()
+	if err := initRoute(); err != nil {
+		return err
+	}
+
 	appName = defaultAppName
 	if *appnameCfg != "" {
 		appName = *appnameCfg
@@ -46,6 +53,10 @@ func Init(defaultAppName string) error {
 	//	time.Sleep(time.Second*3)
 	//}
 
+	werr := sd.RegisterSever(GetConfVip(), nil, appName)
+	if werr != nil {
+		return werr
+	}
 	return nil
 }
 
@@ -72,4 +83,8 @@ func GetConfVip() *viper.Viper {
 func GetServerConf(key string) interface{} {
 	vip := GetConfVip()
 	return vip.Get(appName + "." + key)
+}
+
+func GetServerConfByConf(conf *viper.Viper, key string) interface{} {
+	return conf.Get(appName + "." + key)
 }

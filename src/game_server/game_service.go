@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"share"
-	"time"
 
 	"google.golang.org/grpc/metadata"
 
@@ -37,7 +36,7 @@ func (s *GameService) HelloWorld(ctx context.Context, req *HelloRequest) (*Hello
 	uid, err := share.GetUIDFromContext(ctx)
 	println("HelloWorld.....", req.Request, uid, err, oc)
 	broadcastClients(ctx, "helloworld", req)
-	time.Sleep(time.Second)
+	//time.Sleep(time.Second)
 	return &HelloResponse{Response: req.GetRequest() + " Server"}, err
 }
 
@@ -52,6 +51,6 @@ func (s *GameService) TellYou(ctx context.Context, req *TellRequest) (*TellRsp, 
 	println("TellYou.....", req.Request, req.TargetId, uid, err, oc)
 
 	sendClient(ctx, req.TargetId, "tellyou", req)
-	time.Sleep(time.Second)
+	//time.Sleep(time.Second)
 	return &TellRsp{Request: req.Request, TargetId: req.TargetId}, err
 }

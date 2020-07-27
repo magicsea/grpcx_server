@@ -7,6 +7,9 @@ import (
 	"pb"
 	"share"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	"github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
@@ -14,8 +17,8 @@ import (
 
 func main() {
 	share.Init("game1")
-	share.InitPeers(share.GateWay)
-
+	//sd.WatchService(share.GateWay)
+	//sd.TestOverflow()
 	server := grpc.NewServer()
 	pb.RegisterGameServiceServer(server, &GameService{})
 
@@ -26,6 +29,7 @@ func main() {
 		log.Fatalf("net.Listen err: %v", err)
 	}
 
+	go http.ListenAndServe(":7070", nil)
 	server.Serve(lis)
 }
 

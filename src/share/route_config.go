@@ -15,8 +15,8 @@ var routConfig *RouteConfig
 
 type RouteConfig struct {
 	Project RouteProject
-	Servers []DServerNode
-	Rules   []RuleCfg
+	//Servers []DServerNode
+	Rules []RuleCfg
 }
 
 type RouteProject struct {
@@ -34,12 +34,12 @@ type RuleCfg struct {
 	Protos []string
 }
 
-func init() {
+func initRoute() error {
 
 	conf, err := loadRouteConfig("./route.toml")
 	if err != nil {
 		panic(err)
-		return
+		return err
 	}
 
 	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(&routConfig)), unsafe.Pointer(conf))
@@ -51,7 +51,7 @@ func init() {
 			atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(&routConfig)), unsafe.Pointer(confNew))
 		}
 	})
-
+	return nil
 }
 
 func loadRouteConfig(file string) (*RouteConfig, error) {
@@ -80,25 +80,25 @@ func GetRouteConfig() *RouteConfig {
 }
 
 //获取一类服务器
-func GetServersByType(t string) []DServerNode {
-	var l []DServerNode
-	for _, v := range GetRouteConfig().Servers {
-		if v.Type == t {
-			l = append(l, v)
-		}
-	}
-	return l
-}
-
-//获取一个服务器
-func GetServerByName(name string) (*DServerNode, bool) {
-	for _, v := range GetRouteConfig().Servers {
-		if v.Name == name {
-			return &v, true
-		}
-	}
-	return nil, false
-}
+//func GetServersByType(t string) []DServerNode {
+//	var l []DServerNode
+//	for _, v := range GetRouteConfig().Servers {
+//		if v.Type == t {
+//			l = append(l, v)
+//		}
+//	}
+//	return l
+//}
+//
+////获取一个服务器
+//func GetServerByName(name string) (*DServerNode, bool) {
+//	for _, v := range GetRouteConfig().Servers {
+//		if v.Name == name {
+//			return &v, true
+//		}
+//	}
+//	return nil, false
+//}
 
 //匹配服务
 func GetRuleMatchProto(fullMethodName string) (*RuleCfg, bool) {

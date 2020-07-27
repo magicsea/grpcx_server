@@ -17,13 +17,13 @@ import (
 
 const (
 	//gateway地址
-	Addr = ":3001"
+	Addr = ":3002"
 )
 
 var clientconn *grpc.ClientConn
 
 func main() {
-	println("conn:",Addr)
+	println("conn:", Addr)
 	conn, err := grpc.Dial(Addr, grpc.WithTimeout(time.Second*3), grpc.WithBlock(), grpc.WithInsecure())
 	clientconn = conn
 	if err != nil {
@@ -45,7 +45,7 @@ func main() {
 
 	println("login ok!")
 
-	var ch = make(chan pb.RawMsg,128)
+	var ch = make(chan pb.RawMsg, 128)
 	go startCmd(gameClint)
 	go func() {
 		for {
@@ -60,14 +60,14 @@ func main() {
 			}
 
 			log.Printf("resp: %+v", resp.Msg)
-			ch<-*resp.Msg
+			ch <- *resp.Msg
 		}
 	}()
 
-	cancel,cancelFunc:= context.WithCancel(context.Background())
+	cancel, cancelFunc := context.WithCancel(context.Background())
 	//main loop
 	ticker := time.NewTicker(time.Second)
-	for ; ;  {
+	for {
 		select {
 		case <-ticker.C:
 			hb++
@@ -75,17 +75,17 @@ func main() {
 
 			if isLogin {
 				//心跳
-				tmCtx,_ := context.WithTimeout(context.Background(),time.Second*10)
-				rsp,err := loginClient.HeartBeat(tmCtx,&pb.HeartBeatMsg{hb})
+				tmCtx, _ := context.WithTimeout(context.Background(), time.Second*10)
+				rsp, err := loginClient.HeartBeat(tmCtx, &pb.HeartBeatMsg{hb})
 				_ = rsp
-				if err!=nil {
-					log.Fatal("HeartBeat error:",err)
+				if err != nil {
+					log.Fatal("HeartBeat error:", err)
 					cancelFunc()
 					return
 				}
 				//fmt.Println("hb rsp:",rsp)
 			}
-		case msg:=<-ch:
+		case msg := <-ch:
 			onRecvMsg(&msg)
 		case <-cancel.Done():
 			println("GameOver")
@@ -94,8 +94,10 @@ func main() {
 	}
 
 }
+
 var hb int64
 var isLogin = false
+
 func onRecvMsg(msg *pb.RawMsg) {
 	switch msg.MsgId {
 	case "loginRsp":
@@ -116,23 +118,24 @@ func onRecvMsg(msg *pb.RawMsg) {
 }
 
 func startCmd(gameClient pb.GameServiceClient) {
-	var cmd, args string
+
 	for {
+		var cmd, args string
 		fmt.Println("input cmd:")
-		fmt.Scanf("%s %s", &cmd, &args)
-		tmCtx,_ := context.WithTimeout(context.Background(),time.Second*10)
+		fmt.Scanln(&cmd, &args)
+		tmCtx, _ := context.WithTimeout(context.Background(), time.Second*10)
 		if cmd == "hello" {
+			fmt.Println("send hello:", args)
 			rsp, err := gameClient.Hello(tmCtx, &pb.HelloRequest{Request: args})
 			fmt.Println("Hello rsp:", rsp.Response, err)
-		} else if cmd == "hi" {
+		} else if cmd == "hw" {
 			rsp, err := gameClient.HelloWorld(tmCtx, &pb.HelloRequest{Request: args})
-			fmt.Println("HelloWorld rsp:", rsp.Response, err)
+			fmt.Printf("HelloWorld rsp:%+v,%v\n", rsp, err)
 		} else if cmd == "tellyou" {
-			tid,_:= strconv.Atoi(args)
-			rsp, err := gameClient.TellYou(tmCtx, &pb.TellRequest{Request: "xyz",TargetId:int64(tid)})
+			tid, _ := strconv.Atoi(args)
+			rsp, err := gameClient.TellYou(tmCtx, &pb.TellRequest{Request: "xyz", TargetId: int64(tid)})
 			fmt.Println("tell rsp:", rsp.TargetId, err)
 		}
-
 
 	}
 
